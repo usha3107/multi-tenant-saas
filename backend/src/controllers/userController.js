@@ -11,7 +11,7 @@ export const addUser = async (req, res) => {
   const currentUser = req.user;
 
   try {
-    if (currentUser.role !== "tenant_admin" || currentUser.tenantId !== tenantId) {
+    if (currentUser.role !== "admin" || currentUser.tenantId !== tenantId) {
       return res.status(403).json({
         success: false,
         message: "Unauthorized",
@@ -163,7 +163,7 @@ export const updateUser = async (req, res) => {
     const user = userResult.rows[0];
 
     if (
-      currentUser.role !== "tenant_admin" &&
+      currentUser.role !== "admin" &&
       currentUser.userId !== userId
     ) {
       return res.status(403).json({
@@ -173,7 +173,7 @@ export const updateUser = async (req, res) => {
     }
 
     if (
-      currentUser.role !== "tenant_admin" &&
+      currentUser.role !== "admin" &&
       (updates.role !== undefined || updates.isActive !== undefined)
     ) {
       return res.status(403).json({
@@ -190,7 +190,7 @@ export const updateUser = async (req, res) => {
       fields.push(`full_name = $${index++}`);
       values.push(updates.fullName);
     }
-    if (currentUser.role === "tenant_admin") {
+    if (currentUser.role === "admin") {
       if (updates.role) {
         fields.push(`role = $${index++}`);
         values.push(updates.role);
@@ -248,7 +248,7 @@ export const deleteUser = async (req, res) => {
   const currentUser = req.user;
 
   try {
-    if (currentUser.role !== "tenant_admin") {
+    if (currentUser.role !== "admin") {
       return res.status(403).json({
         success: false,
         message: "Forbidden",

@@ -146,7 +146,7 @@ export const updateProject = async (req, res) => {
 
     if (
       project.tenant_id !== tenantId ||
-      (role !== "tenant_admin" && project.created_by !== userId)
+      (role !== "admin" && project.created_by !== userId)
     ) {
       return res.status(403).json({
         success: false,
@@ -234,7 +234,7 @@ export const deleteProject = async (req, res) => {
 
     if (
       project.tenant_id !== tenantId ||
-      (role !== "tenant_admin" && project.created_by !== userId)
+      (role !== "admin" && project.created_by !== userId)
     ) {
       return res.status(403).json({
         success: false,

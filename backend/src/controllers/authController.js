@@ -51,7 +51,7 @@ export const registerTenant = async (req, res) => {
     const userResult = await client.query(
       `INSERT INTO users 
        (tenant_id, email, password_hash, full_name, role)
-       VALUES ($1, $2, $3, $4, 'tenant_admin')
+       VALUES ($1, $2, $3, $4, 'admin')
        RETURNING id, email, full_name, role`,
       [tenantId, adminEmail, passwordHash, adminFullName]
     );
