@@ -5,7 +5,7 @@ const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const isTenantAdmin = () => user?.role === "tenant_admin";
+  const isTenantAdmin = () => user?.role === "admin";
   const isUser = () => user?.role === "user";
   const [loading, setLoading] = useState(true);
 
