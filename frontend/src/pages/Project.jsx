@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../api/api";
 import { useAuth } from "../context/AuthContext";
-import { FolderPlus, Trash2, ArrowRight } from "lucide-react";
+import { FolderPlus, Trash2, ArrowRight, Edit2 } from "lucide-react";
 
 function Projects() {
   const { loading, isTenantAdmin } = useAuth();
