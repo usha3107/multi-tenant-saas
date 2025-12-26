@@ -145,8 +145,9 @@ export const updateProject = async (req, res) => {
     const project = projectResult.rows[0];
 
     if (
-      project.tenant_id !== tenantId ||
-      (role !== "admin" && project.created_by !== userId)
+      role !== "super_admin" &&
+      (project.tenant_id !== tenantId ||
+        (role !== "tenant_admin" && project.created_by !== userId))
     ) {
       return res.status(403).json({
         success: false,
@@ -233,8 +234,9 @@ export const deleteProject = async (req, res) => {
     const project = projectResult.rows[0];
 
     if (
-      project.tenant_id !== tenantId ||
-      (role !== "admin" && project.created_by !== userId)
+      role !== "super_admin" &&
+      (project.tenant_id !== tenantId ||
+        (role !== "tenant_admin" && project.created_by !== userId))
     ) {
       return res.status(403).json({
         success: false,
