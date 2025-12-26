@@ -52,4 +52,4 @@ END $$;
 -- We DO NOT drop ENUMs in DOWN because:
 -- 1. ENUMs are global
 -- 2. Dropping them can break tables
--- 3. Production systems never drop ENUMs
+-- 3. Production systems never drop ENUMs'

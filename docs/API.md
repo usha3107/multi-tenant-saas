@@ -1,114 +1,114 @@
 # API Documentation
 
-Base URL: `http://localhost:5000/api`
-
 ## Authentication
 
-### Register Tenant
-- **Endpoint**: `POST /auth/register-tenant`
-- **Description**: Register a new tenant organization and admin user.
+### 1. Tenant Registration
+- **Endpoint**: `POST /api/auth/register-tenant`
+- **Auth**: Public
 - **Body**:
   ```json
   {
-    "tenantName": "Acme Corp",
-    "subdomain": "acme",
-    "adminEmail": "admin@acme.com",
-    "adminFullName": "Admin User",
-    "adminPassword": "password123"
+    "tenantName": "Company Name",
+    "subdomain": "company",
+    "adminEmail": "admin@company.com",
+    "adminPassword": "password123",
+    "adminFullName": "Admin Name"
   }
   ```
 
-### Login
-- **Endpoint**: `POST /auth/login`
-- **Description**: Authenticate user and receive JWT.
+### 2. User Login
+- **Endpoint**: `POST /api/auth/login`
+- **Auth**: Public
 - **Body**:
   ```json
   {
-    "email": "admin@demo.com",
-    "password": "Demo@123",
-    "tenantSubdomain": "demo"
+    "email": "user@company.com",
+    "password": "password123",
+    "tenantSubdomain": "company"
   }
   ```
 
-### Get Current User
-- **Endpoint**: `GET /auth/me`
-- **Headers**: `Authorization: Bearer <token>`
+### 3. Get Current User
+- **Endpoint**: `GET /api/auth/me`
+- **Auth**: Bearer Token
+- **Response**: User and Tenant details.
 
-## Projects
+### 4. Logout
+- **Endpoint**: `POST /api/auth/logout`
+- **Auth**: Bearer Token
 
-### List Projects
-- **Endpoint**: `GET /projects`
-- **Headers**: `Authorization: Bearer <token>`
-- **Query Params**: `page`, `limit`, `search`, `status`
+---
 
-### Create Project
-- **Endpoint**: `POST /projects`
-- **Headers**: `Authorization: Bearer <token>`
-- **Body**:
-  ```json
-  {
-    "name": "New Website",
-    "description": "Redesign project"
-  }
-  ```
+## Tenant Management
 
-### Get Project Details
-- **Endpoint**: `GET /projects/:id`
-- **Headers**: `Authorization: Bearer <token>`
+### 5. Get Tenant Details
+- **Endpoint**: `GET /api/tenants/:tenantId`
+- **Auth**: Tenant Member or Super Admin
 
-### Update Project
-- **Endpoint**: `PUT /projects/:id`
-- **Headers**: `Authorization: Bearer <token>`
+### 6. Update Tenant
+- **Endpoint**: `PUT /api/tenants/:tenantId`
+- **Auth**: Tenant Admin (Name only) or Super Admin (All fields)
 
-### Delete Project
-- **Endpoint**: `DELETE /projects/:id`
-- **Headers**: `Authorization: Bearer <token>`
+### 7. List All Tenants
+- **Endpoint**: `GET /api/tenants`
+- **Auth**: Super Admin Only
 
-## Tasks
+---
 
-### List Tasks
-- **Endpoint**: `GET /projects/:projectId/tasks`
-- **Headers**: `Authorization: Bearer <token>`
+## User Management
 
-### Create Task
-- **Endpoint**: `POST /projects/:projectId/tasks`
-- **Headers**: `Authorization: Bearer <token>`
-- **Body**:
-  ```json
-  {
-    "title": "Design Mockups",
-    "description": "Figma files",
-    "priority": "high",
-    "dueDate": "2024-12-31"
-  }
-  ```
+### 8. Add User to Tenant
+- **Endpoint**: `POST /api/tenants/:tenantId/users`
+- **Auth**: Tenant Admin
 
-### Update Task Status
-- **Endpoint**: `PATCH /tasks/:taskId/status`
-- **Headers**: `Authorization: Bearer <token>`
-- **Body**:
-  ```json
-  { "status": "in_progress" }
-  ```
+### 9. List Tenant Users
+- **Endpoint**: `GET /api/tenants/:tenantId/users`
+- **Auth**: Tenant Member
 
-## Users (Tenant Admin Only)
+### 10. Update User
+- **Endpoint**: `PUT /api/users/:userId`
+- **Auth**: Tenant Admin
 
-### List Users
-- **Endpoint**: `GET /tenants/:tenantId/users`
-- **Headers**: `Authorization: Bearer <token>`
+### 11. Delete User
+- **Endpoint**: `DELETE /api/users/:userId`
+- **Auth**: Tenant Admin
 
-### Add User
-- **Endpoint**: `POST /tenants/:tenantId/users`
-- **Headers**: `Authorization: Bearer <token>`
-- **Body**:
-  ```json
-  {
-    "email": "employee@demo.com",
-    "fullName": "John Doe",
-    "role": "user"
-  }
-  ```
+---
 
-### Delete User
-- **Endpoint**: `DELETE /users/:userId`
-- **Headers**: `Authorization: Bearer <token>`
+## Project Management
+
+### 12. Create Project
+- **Endpoint**: `POST /api/projects`
+- **Auth**: Tenant Member
+
+### 13. List Projects
+- **Endpoint**: `GET /api/projects`
+- **Auth**: Tenant Member
+
+### 14. Update Project
+- **Endpoint**: `PUT /api/projects/:projectId`
+- **Auth**: Admin or Creator
+
+### 15. Delete Project
+- **Endpoint**: `DELETE /api/projects/:projectId`
+- **Auth**: Admin or Creator
+
+---
+
+## Task Management
+
+### 16. Create Task
+- **Endpoint**: `POST /api/projects/:projectId/tasks`
+- **Auth**: Tenant Member
+
+### 17. List Project Tasks
+- **Endpoint**: `GET /api/projects/:projectId/tasks`
+- **Auth**: Tenant Member
+
+### 18. Update Task Status
+- **Endpoint**: `PATCH /api/tasks/:taskId/status`
+- **Auth**: Tenant Member
+
+### 19. Update Task
+- **Endpoint**: `PUT /api/tasks/:taskId`
+- **Auth**: Tenant Member

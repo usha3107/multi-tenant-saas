@@ -1,103 +1,176 @@
 import { useEffect, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import api from "../api/api";
 import { useAuth } from "../context/AuthContext";
+import { FolderPlus, Trash2, ArrowRight } from "lucide-react";
 
 function Projects() {
-  const { user, loading } = useAuth();
+  const { loading, isTenantAdmin } = useAuth();
   const navigate = useNavigate();
 
   const [projects, setProjects] = useState([]);
-  const [name, setName] = useState("");
-  const [desc, setDesc] = useState("");
-  const [showForm, setShowForm] = useState(false);
   const [error, setError] = useState("");
 
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+
+  /* ===============================
+     FETCH PROJECTS
+  =============================== */
   useEffect(() => {
     if (loading) return;
-    fetchProjects();
+
+    api
+      .get("/projects")
+      .then((res) => {
+        const data = res.data?.data?.projects;
+        setProjects(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        setError("Failed to load projects");
+        setProjects([]);
+      });
   }, [loading]);
 
-  const fetchProjects = () => {
-    // API 13 query params: ?limit=100
-    api.get(`/projects?limit=100`)
-      .then((res) => setProjects(res.data.data.projects))
-      .catch(() => console.error("Failed to load projects"));
-  };
-
-  const addProject = async (e) => {
+  /* ===============================
+     ADD PROJECT
+  =============================== */
+  const handleAddProject = async (e) => {
     e.preventDefault();
-    if (!name) return;
+    setError("");
 
     try {
-      await api.post(`/projects`, { name, description: desc });
+      const res = await api.post("/projects", {
+        name,
+        description,
+      });
+
+      setProjects((prev) => [...prev, res.data.data]);
       setName("");
-      setDesc("");
-      setShowForm(false);
-      fetchProjects();
+      setDescription("");
     } catch (err) {
-      setError(err.response?.data?.message || "Failed to create project");
+      if (err.response?.status === 403) {
+        setError("Project limit reached for your plan");
+      } else {
+        setError("Failed to create project");
+      }
+    }
+  };
+
+  /* ===============================
+     DELETE PROJECT
+  =============================== */
+  const handleDeleteProject = async (projectId) => {
+    if (!window.confirm("Delete this project?")) return;
+
+    try {
+      await api.delete(`/projects/${projectId}`);
+      setProjects((prev) => prev.filter((p) => p.id !== projectId));
+    } catch {
+      alert("Failed to delete project");
     }
   };
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-        <h2 className="text-xl font-bold">All Projects</h2>
-        <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
-          {showForm ? 'Cancel' : '+ New Project'}
-        </button>
+    <div className="dashboard-container">
+      <div className="page-header">
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <FolderPlus size={28} className="text-muted" color="var(--text-muted)" />
+          <h2 style={{ fontSize: "1.2rem", color: "var(--text-muted)", margin: 0 }}>Projects</h2>
+        </div>
+        <button className="btn-secondary btn-sm" onClick={() => window.history.back()}>&larr; Back</button>
       </div>
 
-      {error && <div className="p-3 mb-4 text-red-400 bg-red-900/20 rounded border border-red-800">{error}</div>}
+      {error && <p className="error">{error}</p>}
 
-      {showForm && (
-        <div className="card mb-6 animate-fade-in" style={{ marginBottom: '2rem' }}>
-          <form onSubmit={addProject}>
+      {/* ================= ADD PROJECT ================= */}
+      {isTenantAdmin() && (
+        <div className="inline-form">
+          <h4 style={{ marginBottom: "15px", color: "var(--text-main)" }}>Create New Project</h4>
+          <form onSubmit={handleAddProject} style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
             <div className="form-group">
-              <label className="form-label">Project Name</label>
+              <label>Project Name</label>
               <input
-                className="form-input"
+                type="text"
+                placeholder="e.g. Website Redesign"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
               />
             </div>
+
             <div className="form-group">
-              <label className="form-label">Description (Optional)</label>
+              <label>Description (Optional)</label>
               <textarea
-                className="form-input"
-                value={desc}
-                onChange={(e) => setDesc(e.target.value)}
+                placeholder="Brief details about the project..."
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                rows={3}
+                style={{ resize: "vertical" }}
               />
             </div>
-            <div className="flex gap-2" style={{ display: 'flex', gap: '0.5rem' }}>
-              <button type="submit" className="btn btn-primary">Create Project</button>
+
+            <div style={{ display: "flex", justifyContent: "flex-end" }}>
+              <button type="submit" style={{ width: "auto" }}>+ Create Project</button>
             </div>
           </form>
         </div>
       )}
 
+      {/* ================= PROJECT LIST ================= */}
       {projects.length === 0 ? (
-        <div className="text-center p-12 card text-muted">
+        <div style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)", background: "var(--card-bg)", borderRadius: "8px", border: "1px solid var(--border-color)" }}>
           No projects found.
         </div>
       ) : (
-        <div className="grid gap-4" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem' }}>
-          {projects.map((p) => (
-            <Link to={`/projects/${p.id}`} key={p.id} className="card block hover:border-primary transition-colors" style={{ textDecoration: 'none' }}>
-              <div className="flex justify-between items-start mb-2" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <h3 className="font-semibold text-lg text-white">{p.name}</h3>
-                <span className={`badge ${p.status === 'active' ? 'badge-success' : 'badge-neutral'}`}>{p.status}</span>
-              </div>
-              <p className="text-sm text-muted mb-4 h-12 overflow-hidden">{p.description || "No description"}</p>
-              <div className="text-xs text-muted flex justify-between" style={{ display: 'flex', justifyContent: 'space-between' }}>
-                <span>Tasks: {p.task_count || 0}</span>
-                <span>Created by {p.creator_name}</span>
-              </div>
-            </Link>
-          ))}
-        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th>Created At</th>
+              <th style={{ textAlign: "right" }}>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            {projects.map((project) => (
+              <tr key={project.id}>
+                <td style={{ fontWeight: "600", color: "var(--text-main)" }}>{project.name}</td>
+                <td style={{ color: "var(--text-muted)" }}>{project.description || "-"}</td>
+                <td>
+                  <span style={{ fontSize: "0.9rem", color: project.status === 'active' ? "#10b981" : "#a8a29e", fontWeight: "500" }}>
+                    ● {project.status.charAt(0).toUpperCase() + project.status.slice(1)}
+                  </span>
+                </td>
+                <td style={{ color: "var(--text-muted)", fontSize: "0.9rem" }}>
+                  {new Date(project.created_at).toLocaleDateString()}
+                </td>
+
+                <td style={{ textAlign: "right" }}>
+                  <button
+                    className="btn-secondary btn-sm"
+                    onClick={() => navigate(`/projects/${project.id}`)}
+                    style={{ marginRight: "8px" }}
+                  >
+                    View <ArrowRight size={14} style={{ marginLeft: "4px" }} />
+                  </button>
+
+                  {isTenantAdmin() && (
+                    <button
+                      className="btn-danger btn-sm"
+                      onClick={() => handleDeleteProject(project.id)}
+                      title="Delete Project"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       )}
     </div>
   );

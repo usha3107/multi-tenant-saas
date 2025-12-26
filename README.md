@@ -1,71 +1,74 @@
-# Multi-Tenant SaaS Platform
+# Multi-Tenant SaaS Application
 
-A production-ready, multi-tenant SaaS application for project and task management. It features complete data isolation, role-based access control (RBAC), and subscription management.
+A production-ready, multi-tenant SaaS application where multiple organizations (tenants) can independently register, manage their teams, create projects, and track tasks.
 
 ## Features
-- **Multi-Tenancy**: Complete data isolation with subdomain support.
-- **Role-Based Access Control**: Super Admin, Tenant Admin, and User roles.
-- **Authentication**: JWT-based stateless auth with 24h expiry.
-- **Project Management**: Create, update, and track projects.
-- **Task Tracking**: Assign tasks, set priorities, and track status.
-- **Subscription Plans**: Free, Pro, and Enterprise tiers with resource limits.
-- **Modern UI**: "Cyberpunk/SaaS" dark theme with responsive layout.
-- **Dockerized**: specific Docker setup for database, backend, and frontend.
-- **Audit Logging**: Security tracking for critical actions.
 
-## Technology Stack
-- **Frontend**: React 18, Vite, CSS Variables (Dark Theme)
-- **Backend**: Node.js, Express
-- **Database**: PostgreSQL 15
+- **Multi-Tenancy**: Complete data isolation with unique subdomains per tenant.
+- **Authentication**: Secure JWT-based auth with Role-Based Access Control (RBAC).
+- **Three Roles**: Super Admin, Tenant Admin, and User.
+- **Subscription Plans**: Free, Pro, and Enterprise tiers with varying limits.
+- **Project Management**: Create projects, assign tasks, and track status.
+- **Dashboard**: Real-time statistics and recent activity.
+- **Responsive UI**: Built with React and optimized for all devices.
+- **Dockerized**: Fully containerized backend, frontend, and database.
+
+## Tech Stack
+
+- **Backend**: Node.js, Express.js
+- **Frontend**: React, Vite
+- **Database**: PostgreSQL
 - **Containerization**: Docker, Docker Compose
 
-## Architecture Overview
-The system follows a 3-tier architecture:
-1.  **Client**: React SPA interacting via REST API.
-2.  **Server**: Node.js/Express API handling auth, multi-tenancy logic, and business rules.
-3.  **Database**: PostgreSQL with foreign-key based tenant isolation.
+## Prerequisites
 
-## Installation & Setup
+- Docker Desktop installed
+- Node.js (v18+) (optional, for local dev without Docker)
 
-### Prerequisites
-- Docker and Docker Compose installed
-- Node.js (v18+) (optional, for local dev)
+## Getting Started (Docker)
 
-### Quick Start
-Run the entire stack with a single command:
-```bash
-docker-compose up -d --build
-```
+The easiest way to run the application is using Docker.
 
-Access the application:
-- **Frontend**: http://localhost:3000
-- **Backend**: http://localhost:5000
-- **Health Check**: http://localhost:5000/api/health
+1.  **Clone the repository**
+2.  **Start the services**
+    ```bash
+    docker-compose up -d --build
+    ```
+    This command will:
+    - Start PostgreSQL database on port 5432.
+    - Start Backend API on port 5000.
+    - Start Frontend on port 3000.
+    - **Automatically run database migrations and seed data.**
 
-### Setup Details
-Database migrations and seed data are automatically applied when the backend container starts.
+3.  **Access the Application**
+    - Frontend: [http://localhost:3000](http://localhost:3000)
+    - Backend Health Check: [http://localhost:5000/api/health](http://localhost:5000/api/health)
 
-## Environment Variables
-Defined in `docker-compose.yml`:
-- `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`: Database connection.
-- `JWT_SECRET`: Secret key for token signing.
-- `FRONTEND_URL`: URL for CORS configuration.
+## Default Credentials (Seed Data)
 
-## API Documentation
-See [docs/API.md](docs/API.md) for full endpoint details.
-
-### Main Endpoints
-- `POST /api/auth/login` - User login
-- `POST /api/auth/register-tenant` - Register new organization
-- `GET /api/projects` - List projects (tenant-isolated)
-- `POST /api/project/:id/tasks` - Create task
-
-## Testing Credentials (Seed Data)
-**Super Admin:**
+**Super Admin**
 - Email: `superadmin@system.com`
 - Password: `Admin@123`
 
-**Demo Tenant Admin:**
-- Subdomain: `demo`
+**Tenant Admin**
 - Email: `admin@demo.com`
 - Password: `Demo@123`
+- Subdomain: `demo`
+
+**Regular User**
+- Email: `user1@demo.com`
+- Password: `User@123`
+- Tenant Subdomain: `demo`
+
+## API Documentation
+
+The backend provides a RESTful API with 19 endpoints.
+Detailed documentation can be found in [docs/API.md](docs/API.md).
+
+## Project Structure
+
+- `backend/` - Node.js API server
+- `frontend/` - React application
+- `database/` - Migrations and Seed data
+- `docs/` - Project documentation
+- `docker-compose.yml` - Docker orchestration config

@@ -1,36 +1,44 @@
 import { useEffect, useState } from "react";
 import api from "../api/api";
 import { useAuth } from "../context/AuthContext";
+import { UserPlus, Trash2, ArrowLeft } from "lucide-react";
 
 function Users() {
-  const { user, loading, isTenantAdmin, isSuperAdmin } = useAuth();
+  const { user, loading, isTenantAdmin } = useAuth();
+
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
-  const [showForm, setShowForm] = useState(false);
 
-  const [formData, setFormData] = useState({ email: "", fullName: "", role: "user" });
+  const [email, setEmail] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [role, setRole] = useState("user");
 
+  /* =========================
+     FETCH USERS
+  ========================= */
   useEffect(() => {
     if (loading) return;
     if (!user?.tenant_id) return;
-    fetchUsers();
-  }, [user, loading]);
 
-  const fetchUsers = () => {
     api
       .get(`/tenants/${user.tenant_id}/users`)
       .then((res) => {
         const data = res.data?.data;
-        if (Array.isArray(data)) setUsers(data);
-        else if (Array.isArray(data?.users)) setUsers(data.users);
-        else setUsers([]);
+        if (Array.isArray(data?.users)) {
+          setUsers(data.users);
+        } else {
+          setUsers([]);
+        }
       })
-      .catch((err) => {
-        console.error(err);
+      .catch(() => {
         setError("Failed to load users");
+        setUsers([]);
       });
-  };
+  }, [user, loading]);
 
+  /* =========================
+     ADD USER
+  ========================= */
   const handleAddUser = async (e) => {
     e.preventDefault();
     setError("");
@@ -38,105 +46,144 @@ function Users() {
     try {
       const res = await api.post(
         `/tenants/${user.tenant_id}/users`,
-        formData
+        { email, fullName, role }
       );
-      if (res.data?.data) {
-        setUsers((prev) => [res.data.data, ...prev]);
-        setShowForm(false);
-        setFormData({ email: "", fullName: "", role: "user" });
+
+      const newUser = res.data?.data;
+      if (newUser) {
+        setUsers((prev) => [...prev, newUser]);
       }
+
+      setEmail("");
+      setFullName("");
+      setRole("user");
     } catch (err) {
       setError(err.response?.data?.message || "Failed to add user");
     }
   };
 
-  if (!isTenantAdmin() && !isSuperAdmin()) {
-    return <div className="p-4 text-center">You do not have permission to view this page.</div>;
-  }
+  /* =========================
+     DELETE USER
+  ========================= */
+  const handleDelete = async (userId) => {
+    if (!window.confirm("Are you sure you want to delete this user?")) return;
+
+    try {
+      await api.delete(`/users/${userId}`);
+      setUsers((prev) => prev.filter((u) => u.id !== userId));
+    } catch (err) {
+      alert(err.response?.data?.message || "Delete failed");
+    }
+  };
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-6" style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1.5rem' }}>
-        <h2 className="text-xl font-bold">Team Members</h2>
-        <button className="btn btn-primary" onClick={() => setShowForm(!showForm)}>
-          {showForm ? 'Cancel' : '+ Add User'}
+    <div className="dashboard-container">
+      <div className="page-header">
+        <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <UserPlus size={28} className="text-muted" color="var(--text-muted)" />
+          <h2 style={{ fontSize: "1.2rem", color: "var(--text-muted)", margin: 0 }}>Team Members</h2>
+        </div>
+        <button className="btn-secondary btn-sm" onClick={() => window.history.back()}>
+          <ArrowLeft size={16} style={{ marginRight: "5px" }} /> Back
         </button>
       </div>
 
-      {error && <div className="p-3 mb-4 text-red-400 bg-red-900/20 rounded border border-red-800">{error}</div>}
+      {error && <div className="error">{error}</div>}
 
-      {showForm && (
-        <div className="card mb-6 animate-fade-in" style={{ marginBottom: '2rem' }}>
-          <form onSubmit={handleAddUser}>
-            <div className="grid grid-cols-2 gap-4" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div className="form-group">
-                <label className="form-label">Full Name</label>
-                <input
-                  className="form-input"
-                  value={formData.fullName}
-                  onChange={(e) => setFormData({ ...formData, fullName: e.target.value })}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label">Email</label>
-                <input
-                  className="form-input"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  required
-                />
-              </div>
+      {/* ================= ADD USER FORM ================= */}
+      {isTenantAdmin() && (
+        <div className="inline-form">
+          <h4 style={{ marginBottom: "15px", color: "var(--text-main)" }}>Add New Member</h4>
+          <form onSubmit={handleAddUser} style={{ flexDirection: "row", flexWrap: "wrap", alignItems: "flex-end" }}>
+            <div style={{ flex: 1, minWidth: "200px" }}>
+              <label>Full Name</label>
+              <input
+                placeholder="John Doe"
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                required
+              />
             </div>
-            <div className="form-group">
-              <label className="form-label">Role</label>
+            <div style={{ flex: 1, minWidth: "200px" }}>
+              <label>Email Address</label>
+              <input
+                placeholder="john@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div style={{ flex: 0.5, minWidth: "150px" }}>
+              <label>Role</label>
               <select
-                className="form-input"
-                value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
+                value={role}
+                onChange={(e) => setRole(e.target.value)}
               >
                 <option value="user">User</option>
-                <option value="tenant_admin">Tenant Admin</option>
+                <option value="tenant_admin">Admin</option>
               </select>
             </div>
-            <button type="submit" className="btn btn-primary">Add Member</button>
+            <div style={{ paddingBottom: "2px" }}>
+              <button type="submit" style={{ width: "auto", height: "42px" }}>+ Add</button>
+            </div>
           </form>
         </div>
       )}
 
-      <div className="card p-0" style={{ padding: 0, overflow: 'hidden' }}>
-        {users.length === 0 ? (
-          <div className="p-6 text-center text-muted">No users found</div>
-        ) : (
-          <table className="table">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Role</th>
-                <th>Status</th>
+      {/* ================= USERS TABLE ================= */}
+      {users.length === 0 ? (
+        <div style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)", background: "var(--card-bg)", borderRadius: "8px", border: "1px solid var(--border-color)" }}>
+          No users found.
+        </div>
+      ) : (
+        <table>
+          <thead>
+            <tr>
+              <th>Full Name</th>
+              <th>Email</th>
+              <th>Role</th>
+              <th>Status</th>
+              {isTenantAdmin() && <th style={{ textAlign: "right" }}>Action</th>}
+            </tr>
+          </thead>
+
+          <tbody>
+            {users.map((u) => (
+              <tr key={u.id}>
+                <td style={{ fontWeight: "500", color: "var(--text-main)" }}>{u.full_name}</td>
+                <td style={{ color: "var(--text-muted)" }}>{u.email}</td>
+                <td>
+                  <span style={{
+                    fontSize: "0.8rem",
+                    padding: "2px 8px",
+                    borderRadius: "10px",
+                    background: u.role === 'tenant_admin' ? "rgba(99, 102, 241, 0.1)" : "rgba(255, 255, 255, 0.05)",
+                    color: u.role === 'tenant_admin' ? "#818cf8" : "var(--text-muted)",
+                    border: u.role === 'tenant_admin' ? "1px solid rgba(99, 102, 241, 0.2)" : "1px solid var(--border-color)"
+                  }}>
+                    {u.role === 'tenant_admin' ? 'Admin' : 'User'}
+                  </span>
+                </td>
+                <td>
+                  <span style={{ color: u.is_active ? "#10b981" : "#ef4444", fontWeight: "500", fontSize: "0.9rem" }}>
+                    {u.is_active ? "● Active" : "● Inactive"}
+                  </span>
+                </td>
+
+                {isTenantAdmin() && (
+                  <td style={{ textAlign: "right" }}>
+                    {user.id !== u.id && (
+                      <button className="btn-sm btn-danger" onClick={() => handleDelete(u.id)} title="Remove User">
+                        <Trash2 size={14} />
+                      </button>
+                    )}
+                  </td>
+                )}
               </tr>
-            </thead>
-            <tbody>
-              {users.map((u) => (
-                <tr key={u.id}>
-                  <td className="font-medium text-white">{u.full_name}</td>
-                  <td className="text-muted">{u.email}</td>
-                  <td>
-                    <span className={`badge ${u.role === 'tenant_admin' ? 'badge-warning' : 'badge-neutral'}`}>
-                      {u.role.replace('_', ' ')}
-                    </span>
-                  </td>
-                  <td>
-                    <span className="text-xs text-green-400">Active</span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+            ))}
+          </tbody>
+        </table>
+      )}
     </div>
   );
 }

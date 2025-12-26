@@ -1,9 +1,10 @@
 import { useState } from "react";
 import api from "../api/api";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function Register() {
   const navigate = useNavigate();
+  const [acceptTerms, setAcceptTerms] = useState(false);
 
   const [form, setForm] = useState({
     tenantName: "",
@@ -30,17 +31,23 @@ function Register() {
       return;
     }
 
+    if (!acceptTerms) {
+      setError("You must accept Terms & Conditions");
+      return;
+    }
+
     try {
       setLoading(true);
+      await api.post("/auth/register-tenant", {
+        tenantName: form.tenantName,
+        subdomain: form.subdomain,
+        adminEmail: form.adminEmail,
+        adminPassword: form.adminPassword,
+        adminFullName: form.adminFullName,
+      });
 
-      const { confirmPassword, ...registerData } = form;
-
-      await api.post("/auth/register-tenant", registerData);
-
-      alert("Registration successful! Please login.");
       navigate("/login");
     } catch (err) {
-      console.error(err);
       setError(err.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
@@ -48,91 +55,56 @@ function Register() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-bg-color" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div className="card w-full max-w-2xl animate-fade-in" style={{ width: '100%', maxWidth: '600px', padding: '2.5rem' }}>
-        <div className="text-center mb-6">
-          <h2 className="text-2xl font-bold mb-2">Create Workspace</h2>
-          <p className="text-muted">Start your free trial today</p>
+    <div className="container register">
+      <h2>Create Your Account</h2>
+
+      {error && <div className="error">{error}</div>}
+
+      <form onSubmit={handleSubmit}>
+        <div className="form-group">
+          <label>Organization Name</label>
+          <input name="tenantName" placeholder="e.g. Acme Corp" onChange={handleChange} required />
         </div>
 
-        {error && <div className="p-3 mb-4 text-sm text-red-400 bg-red-900/10 rounded border border-red-800/50">{error}</div>}
+        <div className="form-group">
+          <label>Subdomain (Workspace URL)</label>
+          <input name="subdomain" placeholder="acme" onChange={handleChange} required />
+          <small style={{ marginTop: "-5px", color: "#6b7280", fontSize: "0.8rem" }}>Your site will be: {form.subdomain || "your-company"}.saas.com</small>
+        </div>
 
-        <form onSubmit={handleSubmit}>
-          <div className="grid grid-cols-2 gap-4" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-            <div className="form-group">
-              <label className="form-label">Organization Name</label>
-              <input
-                className="form-input"
-                name="tenantName"
-                onChange={handleChange}
-                required
-              />
-            </div>
+        <div className="form-group">
+          <label>Admin Name</label>
+          <input name="adminFullName" placeholder="John Doe" onChange={handleChange} required />
+        </div>
 
-            <div className="form-group">
-              <label className="form-label">Subdomain</label>
-              <input
-                className="form-input"
-                name="subdomain"
-                onChange={handleChange}
-                required
-              />
-            </div>
+        <div className="form-group">
+          <label>Admin Email</label>
+          <input name="adminEmail" type="email" placeholder="john@acme.com" onChange={handleChange} required />
+        </div>
 
-            <div className="form-group">
-              <label className="form-label">Admin Name</label>
-              <input
-                className="form-input"
-                name="adminFullName"
-                onChange={handleChange}
-                required
-              />
-            </div>
+        <div className="form-group">
+          <label>Password</label>
+          <input name="adminPassword" type="password" minLength={8} maxLength={20} placeholder="Create a strong password" onChange={handleChange} required />
+        </div>
 
-            <div className="form-group">
-              <label className="form-label">Admin Email</label>
-              <input
-                className="form-input"
-                type="email"
-                name="adminEmail"
-                onChange={handleChange}
-                required
-              />
-            </div>
+        <div className="form-group">
+          <label>Confirm Password</label>
+          <input name="confirmPassword" type="password" placeholder="Repeat password" onChange={handleChange} required />
+        </div>
 
-            <div className="form-group">
-              <label className="form-label">Password</label>
-              <input
-                className="form-input"
-                type="password"
-                name="adminPassword"
-                onChange={handleChange}
-                required
-                minLength={8}
-              />
-            </div>
+        <div className="checkbox-group">
+          <input type="checkbox" id="terms" onChange={(e) => setAcceptTerms(e.target.checked)} />
+          <label htmlFor="terms" style={{ cursor: "pointer" }}>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></label>
+        </div>
 
-            <div className="form-group">
-              <label className="form-label">Confirm Password</label>
-              <input
-                className="form-input"
-                type="password"
-                name="confirmPassword"
-                onChange={handleChange}
-                required
-              />
-            </div>
-          </div>
+        <button disabled={loading} className="btn-full">
+          {loading ? "Creating Account..." : "Create Account"}
+        </button>
+      </form>
 
-          <button className="btn btn-primary w-full mt-6" style={{ width: '100%', marginTop: '1.5rem' }} disabled={loading}>
-            {loading ? "Creating..." : "Create Account"}
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-muted" style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-          Already have an account? <Link to="/login" className="text-primary-color hover:underline">Login</Link>
-        </p>
-      </div>
+      <p>
+        Already have an account? <a href="#" onClick={(e) => { e.preventDefault(); navigate("/login"); }}>Sign in</a>
+      </p>
     </div>
   );
 }
