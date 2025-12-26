@@ -66,6 +66,19 @@ function Dashboard() {
     navigate("/login", { replace: true });
   };
 
+  /* ===============================
+     FETCH MY TASKS
+  =============================== */
+  const [myTasks, setMyTasks] = useState([]);
+
+  useEffect(() => {
+    if (user) {
+      axios.get("/tasks?limit=5")
+        .then(res => setMyTasks(res.data.data.tasks || []))
+        .catch(err => console.error("Failed to fetch my tasks", err));
+    }
+  }, [user]);
+
   if (loading) return <div className="container" style={{ textAlign: "center", color: "var(--text-muted)" }}>Loading workspace...</div>;
 
   return (
@@ -75,10 +88,6 @@ function Dashboard() {
           <LayoutDashboard size={28} className="text-muted" color="var(--text-muted)" />
           <h2 style={{ fontSize: "1.2rem", color: "var(--text-muted)", margin: 0 }}>Dashboard</h2>
         </div>
-        <button onClick={handleLogout} className="btn-secondary btn-sm">
-          <LogOut size={16} style={{ marginRight: "8px" }} />
-          Logout
-        </button>
       </div>
 
       <div className="welcome-banner">
@@ -114,40 +123,61 @@ function Dashboard() {
         </div>
       </div>
 
-      <div className="section">
-        <div className="page-header" style={{ marginBottom: "20px" }}>
-          <h2>Recent Projects</h2>
-          {isTenantAdmin() && (
-            <div style={{ display: "flex", gap: "10px" }}>
-              <button className="btn-secondary btn-sm" onClick={() => navigate("/projects")}>Manage Projects</button>
-              <button className="btn-secondary btn-sm" onClick={() => navigate("/users")}>Manage Users</button>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginTop: "30px" }}>
+
+        {/* RECENT PROJECTS */}
+        <div className="section" style={{ marginTop: 0 }}>
+          <div className="page-header" style={{ marginBottom: "20px" }}>
+            <h2>Recent Projects</h2>
+          </div>
+          {recentProjects.length > 0 ? (
+            <div style={{ display: "grid", gap: "15px" }}>
+              {recentProjects.map((proj) => (
+                <div key={proj.id} style={{ background: "var(--card-bg)", padding: "20px", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid var(--border-color)" }}>
+                  <div>
+                    <strong style={{ fontSize: "1rem", display: "block", color: "var(--text-main)" }}>{proj.name}</strong>
+                    <span style={{ fontSize: "0.8rem", color: proj.status === 'active' ? "#10b981" : "#a8a29e", fontWeight: "500", marginTop: "4px", display: "inline-block" }}>
+                      ● {proj.status}
+                    </span>
+                  </div>
+                  <button className="btn-secondary btn-sm" onClick={() => navigate(`/projects/${proj.id}`)}>
+                    <ArrowRight size={14} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)", background: "var(--card-bg)", borderRadius: "12px", border: "1px solid var(--border-color)" }}>
+              <p>No projects yet.</p>
             </div>
           )}
         </div>
 
-        {recentProjects.length > 0 ? (
-          <div style={{ display: "grid", gap: "15px" }}>
-            {recentProjects.map((proj) => (
-              <div key={proj.id} style={{ background: "var(--card-bg)", padding: "25px", borderRadius: "12px", display: "flex", justifyContent: "space-between", alignItems: "center", border: "1px solid var(--border-color)" }}>
-                <div>
-                  <strong style={{ fontSize: "1.1rem", display: "block", color: "var(--text-main)" }}>{proj.name}</strong>
-                  <span style={{ fontSize: "0.85rem", color: proj.status === 'active' ? "#10b981" : "#a8a29e", fontWeight: "500", marginTop: "4px", display: "inline-block" }}>
-                    ● {proj.status.charAt(0).toUpperCase() + proj.status.slice(1)}
-                  </span>
+        {/* MY TASKS */}
+        <div className="section" style={{ marginTop: 0 }}>
+          <div className="page-header" style={{ marginBottom: "20px" }}>
+            <h2>My Pending Tasks</h2>
+          </div>
+          {myTasks.length > 0 ? (
+            <div style={{ display: "grid", gap: "15px" }}>
+              {myTasks.map(task => (
+                <div key={task.id} style={{ background: "var(--card-bg)", padding: "20px", borderRadius: "12px", border: "1px solid var(--border-color)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "5px" }}>
+                    <span style={{ fontSize: "0.7rem", fontWeight: "bold", color: "#fff", background: "#f59e0b", padding: "2px 8px", borderRadius: "10px", textTransform: "uppercase" }}>{task.priority}</span>
+                    <span style={{ fontSize: "0.75rem", color: "var(--text-muted)" }}>{task.due_date ? new Date(task.due_date).toLocaleDateString() : "No due date"}</span>
+                  </div>
+                  <h4 style={{ margin: "5px 0", fontSize: "1rem" }}>{task.title}</h4>
+                  <p style={{ margin: 0, fontSize: "0.8rem", color: "var(--text-muted)" }}>Project: {task.project_name}</p>
                 </div>
-                <button className="btn-secondary btn-sm" onClick={() => navigate(`/projects/${proj.id}`)}>
-                  View Board <ArrowRight size={14} style={{ marginLeft: "5px" }} />
-                </button>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div style={{ padding: "60px", textAlign: "center", color: "var(--text-muted)", background: "var(--card-bg)", borderRadius: "12px", border: "1px solid var(--border-color)" }}>
-            <FolderKanban size={40} style={{ opacity: 0.5, marginBottom: "15px" }} />
-            <p>No projects yet.</p>
-            {isTenantAdmin() && <button className="btn-sm" onClick={() => navigate("/projects")} style={{ marginTop: "15px" }}><Plus size={16} /> Create Project</button>}
-          </div>
-        )}
+              ))}
+            </div>
+          ) : (
+            <div style={{ padding: "40px", textAlign: "center", color: "var(--text-muted)", background: "var(--card-bg)", borderRadius: "12px", border: "1px solid var(--border-color)" }}>
+              <CheckCircle2 size={40} style={{ opacity: 0.5, marginBottom: "15px" }} />
+              <p>You have no pending tasks.</p>
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

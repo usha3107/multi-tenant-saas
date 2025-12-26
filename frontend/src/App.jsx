@@ -6,6 +6,7 @@ import Projects from "./pages/Projects";
 import ProjectDetails from "./pages/ProjectDetails";
 import Users from "./pages/Users";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Layout from "./components/Layout";
 import { AuthProvider } from "./context/AuthContext";
 
 export default function App() {
@@ -21,7 +22,9 @@ export default function App() {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <Dashboard />
+                <Layout>
+                  <Dashboard />
+                </Layout>
               </ProtectedRoute>
             }
           />
@@ -30,17 +33,20 @@ export default function App() {
             path="/projects"
             element={
               <ProtectedRoute>
-                <Projects />
+                <Layout>
+                  <Projects />
+                </Layout>
               </ProtectedRoute>
             }
           />
 
-          {/* 🔥 THIS WAS MISSING / WRONG */}
           <Route
             path="/projects/:projectId"
             element={
               <ProtectedRoute>
-                <ProjectDetails />
+                <Layout>
+                  <ProjectDetails />
+                </Layout>
               </ProtectedRoute>
             }
           />
@@ -49,7 +55,9 @@ export default function App() {
             path="/users"
             element={
               <ProtectedRoute>
-                <Users />
+                <Layout>
+                  <Users />
+                </Layout>
               </ProtectedRoute>
             }
           />

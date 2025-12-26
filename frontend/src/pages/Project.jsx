@@ -158,13 +158,32 @@ function Projects() {
                   </button>
 
                   {isTenantAdmin() && (
-                    <button
-                      className="btn-danger btn-sm"
-                      onClick={() => handleDeleteProject(project.id)}
-                      title="Delete Project"
-                    >
-                      <Trash2 size={14} />
-                    </button>
+                    <>
+                      <button
+                        className="btn-secondary btn-sm"
+                        onClick={() => {
+                          const newName = prompt("Enter new project name:", project.name);
+                          if (newName) {
+                            api.put(`/projects/${project.id}`, { name: newName })
+                              .then(() => {
+                                setProjects(prev => prev.map(p => p.id === project.id ? { ...p, name: newName } : p));
+                              })
+                              .catch(err => alert("Failed to update project"));
+                          }
+                        }}
+                        style={{ marginRight: "8px" }}
+                        title="Edit Project Name"
+                      >
+                        <Edit2 size={14} />
+                      </button>
+                      <button
+                        className="btn-danger btn-sm"
+                        onClick={() => handleDeleteProject(project.id)}
+                        title="Delete Project"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </>
                   )}
                 </td>
               </tr>

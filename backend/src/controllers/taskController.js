@@ -363,3 +363,37 @@ export const deleteTask = async (req, res) => {
     });
   }
 };
+
+/* ===============================
+   GET MY TASKS (Dashboard)
+=============================== */
+export const getMyTasks = async (req, res) => {
+  const { tenantId, userId } = req.user;
+  const { limit = 10 } = req.query;
+
+  try {
+    const result = await pool.query(
+      `SELECT t.*, p.name as project_name
+       FROM tasks t
+       JOIN projects p ON t.project_id = p.id
+       WHERE t.assigned_to = $1 AND t.tenant_id = $2 AND t.status != 'completed'
+       ORDER BY t.priority DESC, t.due_date ASC
+       LIMIT $3`,
+      [userId, tenantId, limit]
+    );
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        tasks: result.rows,
+      },
+    });
+  } catch (error) {
+    console.error("Get My Tasks Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch my tasks",
+    });
+  }
+};
+
