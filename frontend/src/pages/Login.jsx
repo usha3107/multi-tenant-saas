@@ -2,7 +2,6 @@ import { useState } from "react";
 import api from "../api/api";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
-import "../App.css";
 
 function Login() {
   const navigate = useNavigate();
@@ -53,43 +52,61 @@ function Login() {
   };
 
   return (
-    <div className="container">
-      <h2>Login</h2>
+    <div className="flex items-center justify-center min-h-screen bg-bg-color" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="card w-full max-w-md animate-fade-in" style={{ width: '100%', maxWidth: '440px', padding: '2.5rem' }}>
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold mb-2 text-primary-color" style={{ color: 'var(--primary-color)' }}>Nexus SaaS</h2>
+          <p className="text-muted">Sign in to your dashboard</p>
+        </div>
 
-      {error && <p style={{ color: "red" }}>{error}</p>}
+        {error && <div className="p-3 mb-4 text-sm text-red-400 bg-red-900/10 rounded border border-red-800/50">{error}</div>}
 
-      <form onSubmit={handleSubmit}>
-        <input
-          name="email"
-          type="email"
-          placeholder="Email"
-          onChange={handleChange}
-          required
-        />
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label className="form-label">Email</label>
+            <input
+              className="form-input"
+              name="email"
+              type="email"
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <input
-          name="password"
-          type="password"
-          placeholder="Password"
-          onChange={handleChange}
-          required
-        />
+          <div className="form-group">
+            <label className="form-label">Password</label>
+            <input
+              className="form-input"
+              name="password"
+              type="password"
+              onChange={handleChange}
+              required
+            />
+          </div>
 
-        <input
-          name="tenantSubdomain"
-          placeholder="Tenant Subdomain"
-          onChange={handleChange}
-          required
-        />
+          <div className="form-group">
+            <label className="form-label">Workspace Subdomain</label>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <input
+                className="form-input"
+                name="tenantSubdomain"
+                onChange={handleChange}
+                required
+                style={{ flex: 1 }}
+              />
+              <span className="text-muted text-sm">.app.com</span>
+            </div>
+          </div>
 
-        <button disabled={loading}>
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
+          <button className="btn btn-primary w-full mt-4" style={{ width: '100%', marginTop: '1rem' }} disabled={loading}>
+            {loading ? "Signing in..." : "Sign In"}
+          </button>
+        </form>
 
-      <p>
-        New tenant? <Link to="/register">Register here</Link>
-      </p>
+        <p className="mt-6 text-center text-sm text-muted" style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+          New organization? <Link to="/register" className="text-primary-color hover:underline">Register here</Link>
+        </p>
+      </div>
     </div>
   );
 }

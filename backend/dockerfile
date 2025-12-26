@@ -16,5 +16,8 @@ COPY . .
 # Expose backend port
 EXPOSE 5000
 
+# Make start script executable
+RUN chmod +x start.sh
+
 # Start backend
-CMD ["npm", "run", "start"]
+CMD ["./start.sh"]

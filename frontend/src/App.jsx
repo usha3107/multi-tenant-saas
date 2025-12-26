@@ -4,6 +4,8 @@ import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import Users from "./pages/Users";
 import Projects from "./pages/Project";
+import ProjectDetails from "./pages/ProjectDetails";
+import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 
@@ -29,7 +31,9 @@ function AppRoutes() {
         path="/dashboard"
         element={
           <ProtectedRoute>
-            <Dashboard />
+            <Layout title="Dashboard">
+              <Dashboard />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -38,7 +42,9 @@ function AppRoutes() {
         path="/users"
         element={
           <ProtectedRoute>
-            <Users />
+            <Layout title="User Management">
+              <Users />
+            </Layout>
           </ProtectedRoute>
         }
       />
@@ -47,7 +53,20 @@ function AppRoutes() {
         path="/projects"
         element={
           <ProtectedRoute>
-            <Projects />
+            <Layout title="Projects">
+              <Projects />
+            </Layout>
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/projects/:projectId"
+        element={
+          <ProtectedRoute>
+            <Layout title="Project Details">
+              <ProjectDetails />
+            </Layout>
           </ProtectedRoute>
         }
       />

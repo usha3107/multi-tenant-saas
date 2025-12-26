@@ -1,10 +1,9 @@
 import { useState } from "react";
 import api from "../api/api";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 
 function Register() {
   const navigate = useNavigate();
-  const [acceptTerms, setAcceptTerms] = useState(false);
 
   const [form, setForm] = useState({
     tenantName: "",
@@ -31,23 +30,17 @@ function Register() {
       return;
     }
 
-    if (!acceptTerms) {
-      setError("You must accept Terms & Conditions");
-      return;
-    }
-
     try {
       setLoading(true);
-      await api.post("/auth/register-tenant", {
-        tenantName: form.tenantName,
-        subdomain: form.subdomain,
-        adminEmail: form.adminEmail,
-        adminPassword: form.adminPassword,
-        adminFullName: form.adminFullName,
-      });
 
+      const { confirmPassword, ...registerData } = form;
+
+      await api.post("/auth/register-tenant", registerData);
+
+      alert("Registration successful! Please login.");
       navigate("/login");
     } catch (err) {
+      console.error(err);
       setError(err.response?.data?.message || "Registration failed");
     } finally {
       setLoading(false);
@@ -55,27 +48,91 @@ function Register() {
   };
 
   return (
-    <div className="container">
-      <h2>Register Tenant</h2>
+    <div className="flex items-center justify-center min-h-screen bg-bg-color" style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+      <div className="card w-full max-w-2xl animate-fade-in" style={{ width: '100%', maxWidth: '600px', padding: '2.5rem' }}>
+        <div className="text-center mb-6">
+          <h2 className="text-2xl font-bold mb-2">Create Workspace</h2>
+          <p className="text-muted">Start your free trial today</p>
+        </div>
 
-      {error && <p className="error">{error}</p>}
+        {error && <div className="p-3 mb-4 text-sm text-red-400 bg-red-900/10 rounded border border-red-800/50">{error}</div>}
 
-      <form onSubmit={handleSubmit}>
-        <input name="tenantName" placeholder="Organization Name" onChange={handleChange} required />
-        <input name="subdomain" placeholder="Subdomain" onChange={handleChange} required />
-        <input name="adminEmail" type="email" placeholder="Admin Email" onChange={handleChange} required />
-        <input name="adminFullName" placeholder="Admin Full Name" onChange={handleChange} required />
-        <input name="adminPassword" type="password" minLength={8} maxLength={20} placeholder="Password" onChange={handleChange} required />
-        <input name="confirmPassword" type="password" placeholder="Confirm Password" onChange={handleChange} required />
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-2 gap-4" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+            <div className="form-group">
+              <label className="form-label">Organization Name</label>
+              <input
+                className="form-input"
+                name="tenantName"
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-        <label>
-          <input type="checkbox" onChange={(e) => setAcceptTerms(e.target.checked)} /> I accept Terms
-        </label>
+            <div className="form-group">
+              <label className="form-label">Subdomain</label>
+              <input
+                className="form-input"
+                name="subdomain"
+                onChange={handleChange}
+                required
+              />
+            </div>
 
-        <button disabled={loading}>
-          {loading ? "Registering..." : "Register"}
-        </button>
-      </form>
+            <div className="form-group">
+              <label className="form-label">Admin Name</label>
+              <input
+                className="form-input"
+                name="adminFullName"
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Admin Email</label>
+              <input
+                className="form-input"
+                type="email"
+                name="adminEmail"
+                onChange={handleChange}
+                required
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Password</label>
+              <input
+                className="form-input"
+                type="password"
+                name="adminPassword"
+                onChange={handleChange}
+                required
+                minLength={8}
+              />
+            </div>
+
+            <div className="form-group">
+              <label className="form-label">Confirm Password</label>
+              <input
+                className="form-input"
+                type="password"
+                name="confirmPassword"
+                onChange={handleChange}
+                required
+              />
+            </div>
+          </div>
+
+          <button className="btn btn-primary w-full mt-6" style={{ width: '100%', marginTop: '1.5rem' }} disabled={loading}>
+            {loading ? "Creating..." : "Create Account"}
+          </button>
+        </form>
+
+        <p className="mt-6 text-center text-sm text-muted" style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+          Already have an account? <Link to="/login" className="text-primary-color hover:underline">Login</Link>
+        </p>
+      </div>
     </div>
   );
 }

@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import pool from "../src/config/db.js";
 
-const migrationsDir = path.join(process.cwd(), "database/migrations");
+const migrationsDir = path.join(process.cwd(), "migrations");
 
 (async () => {
   const files = fs.readdirSync(migrationsDir).sort();

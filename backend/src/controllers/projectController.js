@@ -59,6 +59,54 @@ export const createProject = async (req, res) => {
 };
 
 /* ===============================
+   GET PROJECT (API Extra)
+================================ */
+export const getProject = async (req, res) => {
+  const { projectId } = req.params;
+  const { tenantId, userId, role } = req.user;
+
+  try {
+    const result = await pool.query(
+      `SELECT p.*, u.full_name as creator_name 
+       FROM projects p 
+       JOIN users u ON p.created_by = u.id 
+       WHERE p.id = $1`,
+      [projectId]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({
+        success: false,
+        message: "Project not found",
+      });
+    }
+
+    const project = result.rows[0];
+
+    // Authorization: Must ensure tenant match
+    if (
+      role !== "super_admin" &&
+      (project.tenant_id !== tenantId)
+    ) {
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: project,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Failed to fetch project",
+    });
+  }
+};
+
+/* ===============================
    LIST PROJECTS (API 13)
 ================================ */
 export const listProjects = async (req, res) => {
