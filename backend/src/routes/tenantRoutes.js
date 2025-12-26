@@ -1,19 +1,18 @@
 import express from "express";
 import { authenticate } from "../middleware/authMiddleware.js";
 import {
-  createTask,
-  listProjectTasks,
-  updateTaskStatus,
-  updateTask,
-  deleteTask,
-} from "../controllers/taskController.js";
+  getTenantById,
+  updateTenant,
+  listTenants,
+} from "../controllers/tenantController.js";
 
 const router = express.Router();
 
-router.post("/projects/:projectId/tasks", authenticate, createTask);
-router.get("/projects/:projectId/tasks", authenticate, listProjectTasks);
-router.patch("/tasks/:taskId/status", authenticate, updateTaskStatus);
-router.put("/tasks/:taskId", authenticate, updateTask);
-router.delete("/tasks/:taskId", authenticate, deleteTask);
+// Tenant Admin / User Routes
+router.get("/tenants/:tenantId", authenticate, getTenantById); // Get tenant details (and stats)
+router.put("/tenants/:tenantId", authenticate, updateTenant);   // Update tenant details
+
+// Super Admin Routes
+router.get("/tenants", authenticate, listTenants); // List all tenants
 
 export default router;

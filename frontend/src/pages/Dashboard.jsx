@@ -37,12 +37,14 @@ function Dashboard() {
               const s = tenantRes.data.data.stats;
               const projectsRes = await axios.get("/projects?limit=5");
 
+              console.log("Dashboard Stats:", s); // Debug stats
+
               if (projectsRes.data.success) {
                 setRecentProjects(projectsRes.data.data.projects);
                 setStats({
-                  totalProjects: s.total_projects || s.totalProjects || 0,
-                  totalTasks: s.total_tasks || s.totalTasks || 0,
-                  totalUsers: s.total_users || s.totalUsers || 0,
+                  totalProjects: Number(s.total_projects || s.totalProjects || 0),
+                  totalTasks: Number(s.total_tasks || s.totalTasks || 0),
+                  totalUsers: Number(s.total_users || s.totalUsers || 0),
                 });
               }
             }

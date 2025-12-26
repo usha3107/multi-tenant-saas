@@ -1,35 +1,35 @@
-/* Component-specific styles will go here */
-/* ---------- VARIABLES (LUXURY DARK MODE) ---------- */
+/* ---------- VARIABLES (MODERN LIGHT MODE) ---------- */
 :root {
     /* COLORS */
-    --bg-color: #050505;
-    /* Deep Black */
-    --card-bg: #0f0f0f;
-    /* Rich Dark Grey */
-    --primary-color: #f5f5f5;
-    /* Soft White (Primary Action) */
-    --primary-hover: #ffffff;
-    /* Pure White */
-    --primary-text: #050505;
-    /* Text on Primary Button */
+    --bg-color: #f9fafb;
+    /* Gray 50 */
+    --card-bg: #ffffff;
+    /* White */
 
-    --text-main: #fafaf9;
-    /* Cream/Stone 50 */
-    --text-muted: #a8a29e;
-    /* Warm Grey */
+    --primary-color: #2563eb;
+    /* Blue 600 */
+    --primary-hover: #1d4ed8;
+    /* Blue 700 */
+    --primary-text: #ffffff;
+    /* White text on primary */
 
-    --border-color: #27272a;
-    /* Zinc 800 */
-    --input-bg: #171717;
-    /* Zinc 900 */
+    --text-main: #111827;
+    /* Gray 900 */
+    --text-muted: #6b7280;
+    /* Gray 500 */
 
-    --error-color: #f87171;
+    --border-color: #e5e7eb;
+    /* Gray 200 */
+    --input-bg: #f3f4f6;
+    /* Gray 100 */
+
+    --error-color: #ef4444;
+    /* Red 500 */
 
     /* SHADOWS & RADIUS */
-    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
-    --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.6), 0 10px 10px -5px rgba(0, 0, 0, 0.4);
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     --radius: 12px;
-    /* More rounded for modern feel */
 
     --font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
@@ -264,8 +264,10 @@ button:disabled {
 .welcome-banner h1 {
     font-size: 2.5rem;
     margin-bottom: 10px;
-    background: linear-gradient(to right, #fff, #a8a29e);
+    background: linear-gradient(to right, #2563eb, #111827);
+    /* Adjusted for light mode */
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
@@ -301,7 +303,7 @@ button:disabled {
 .stat-card p {
     font-size: 3rem;
     font-weight: 800;
-    color: var(--text-main);
+    color: var(--primary-color);
     line-height: 1;
 }
 
