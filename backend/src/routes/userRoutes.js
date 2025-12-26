@@ -14,7 +14,7 @@ const router = express.Router();
 router.post(
   "/tenants/:tenantId/users",
   authenticate,
-  roleMiddleware(["admin"]),
+  roleMiddleware(["tenant_admin"]),
   addUser
 );
 
@@ -36,7 +36,7 @@ router.put(
 router.delete(
   "/users/:userId",
   authenticate,
-  roleMiddleware(["admin"]),
+  roleMiddleware(["tenant_admin"]),
   deleteUser
 );
 

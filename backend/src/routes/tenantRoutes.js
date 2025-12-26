@@ -1,24 +1,19 @@
 import express from "express";
 import { authenticate } from "../middleware/authMiddleware.js";
-import roleMiddleware from "../middleware/roleMiddleware.js";
 import {
-  getTenantById,
-  updateTenant,
-  listTenants,
-} from "../controllers/tenantController.js";
+  createTask,
+  listProjectTasks,
+  updateTaskStatus,
+  updateTask,
+  deleteTask,
+} from "../controllers/taskController.js";
 
 const router = express.Router();
 
-/* Tenant Admin OR Super Admin */
-router.get("/:tenantId", authenticate, getTenantById);
-router.put("/:tenantId", authenticate, updateTenant);
-
-/* Super Admin ONLY */
-router.get(
-  "/",
-  authenticate,
-  roleMiddleware(["super_admin"]),
-  listTenants
-);
+router.post("/projects/:projectId/tasks", authenticate, createTask);
+router.get("/projects/:projectId/tasks", authenticate, listProjectTasks);
+router.patch("/tasks/:taskId/status", authenticate, updateTaskStatus);
+router.put("/tasks/:taskId", authenticate, updateTask);
+router.delete("/tasks/:taskId", authenticate, deleteTask);
 
 export default router;

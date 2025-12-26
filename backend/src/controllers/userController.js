@@ -12,10 +12,9 @@ export const addUser = async (req, res) => {
 
   try {
     // 🔐 Authorization
-    // 🔐 Authorization
     if (
-      currentUser.role !== "super_admin" &&
-      (currentUser.role !== "tenant_admin" || currentUser.tenantId !== tenantId)
+      currentUser.role !== "tenant_admin" ||
+      currentUser.tenantId !== tenantId
     ) {
       return res.status(403).json({
         success: false,
@@ -88,6 +87,8 @@ export const addUser = async (req, res) => {
     });
   }
 };
+
+
 /* ===============================
    LIST TENANT USERS (API 9)
 ================================ */
@@ -178,7 +179,6 @@ export const updateUser = async (req, res) => {
     const user = userResult.rows[0];
 
     if (
-      currentUser.role !== "super_admin" &&
       currentUser.role !== "tenant_admin" &&
       currentUser.userId !== userId
     ) {
@@ -189,7 +189,6 @@ export const updateUser = async (req, res) => {
     }
 
     if (
-      currentUser.role !== "super_admin" &&
       currentUser.role !== "tenant_admin" &&
       (updates.role !== undefined || updates.isActive !== undefined)
     ) {
@@ -207,10 +206,7 @@ export const updateUser = async (req, res) => {
       fields.push(`full_name = $${index++}`);
       values.push(updates.fullName);
     }
-    if (
-      currentUser.role === "super_admin" ||
-      currentUser.role === "tenant_admin"
-    ) {
+    if (currentUser.role === "tenant_admin") {
       if (updates.role) {
         fields.push(`role = $${index++}`);
         values.push(updates.role);
@@ -268,10 +264,7 @@ export const deleteUser = async (req, res) => {
   const currentUser = req.user;
 
   try {
-    if (
-      currentUser.role !== "super_admin" &&
-      currentUser.role !== "tenant_admin"
-    ) {
+    if (currentUser.role !== "tenant_admin") {
       return res.status(403).json({
         success: false,
         message: "Forbidden",
@@ -294,16 +287,6 @@ export const deleteUser = async (req, res) => {
       return res.status(404).json({
         success: false,
         message: "User not found",
-      });
-    }
-
-    if (
-      currentUser.role !== "super_admin" &&
-      currentUser.tenantId !== userResult.rows[0].tenant_id
-    ) {
-      return res.status(403).json({
-        success: false,
-        message: "Unauthorized",
       });
     }
 

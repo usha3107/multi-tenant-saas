@@ -63,14 +63,14 @@ export const updateTenant = async (req, res) => {
   const updates = req.body;
 
   try {
-    if (user.role !== "super_admin" && user.role !== "admin") {
+    if (user.role !== "super_admin" && user.role !== "tenant_admin") {
       return res.status(403).json({
         success: false,
         message: "Forbidden",
       });
     }
 
-    if (user.role === "admin") {
+    if (user.role === "tenant_admin") {
       if (updates.status || updates.subscriptionPlan || updates.maxUsers || updates.maxProjects) {
         return res.status(403).json({
           success: false,

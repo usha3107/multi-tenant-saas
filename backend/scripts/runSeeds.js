@@ -2,7 +2,7 @@ import fs from "fs";
 import path from "path";
 import pool from "../src/config/db.js";
 
-const seedFile = path.join(process.cwd(), "seeds/seed_data.sql");
+const seedFile = path.join(process.cwd(), "database/seeds/seed_data.sql");
 
 (async () => {
   const sql = fs.readFileSync(seedFile, "utf8");
