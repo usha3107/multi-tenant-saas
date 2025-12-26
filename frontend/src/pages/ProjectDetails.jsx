@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import api from "../api/api";
+import { useAuth } from "../context/AuthContext";
 import {
     ArrowLeft,
     Plus,
@@ -15,11 +16,27 @@ import {
 
 function ProjectDetails() {
     const { projectId } = useParams();
+    const { user } = useAuth();
 
     const [tasks, setTasks] = useState([]);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
+
+    // Missing state for Adding Task
+    const [title, setTitle] = useState("");
+    const [priority, setPriority] = useState("medium");
+    const [assignedTo, setAssignedTo] = useState("");
+
+    // Missing state for Editing Task
+    const [editTask, setEditTask] = useState(null);
+    const [showEdit, setShowEdit] = useState(false);
+    const [editTitle, setEditTitle] = useState("");
+    const [editDescription, setEditDescription] = useState("");
+    const [editPriority, setEditPriority] = useState("medium");
+    const [editStatus, setEditStatus] = useState("todo");
+    const [editAssignedTo, setEditAssignedTo] = useState("");
+    const [editDueDate, setEditDueDate] = useState("");
 
     /* ===============================
        FETCH PROJECT DETAILS
@@ -31,41 +48,43 @@ function ProjectDetails() {
     const [projStatus, setProjStatus] = useState("active");
 
     const fetchProject = async () => {
-        const res = await api.get(`/projects`); // List projects and find current
-        // Ideally we should have GET /projects/:id but strictly following spec list might use filtering or just finding from list
-        // Actually spec says GET /api/projects/:id is "Project Details", so we can use that.
-        // Wait, spec API 5 is Tenant Details. API 13 is List. API 14 is Update.
-        // Ah, missing GET /projects/:id in my initial assessment of spec?
-        // Step 4.3 says "GET /api/projects/:id - Project details".
-        // Let's assume it exists or I should add it? 
-        // Logic: The backend routes I saw included `projectRoutes.js`. Let's assume it supports GET /:id or we find from list.
-        // Let's try GET /projects/${projectId} first.
         try {
-            // Try filtered list if specific endpoint not available, but let's try specific first if backend exists
-            // Checking projectRoutes.js earlier... it had `router.get("/", ...)` but maybe not `/:id`. 
-            // If not, we will likely 404. Safe bet: use list and filtering? 
-            // No, let's implement the UI and if it fails, I'll fix backend.
-            // Actually, I can check `projectRoutes.js` content from previous `list_dir`? No, I saw it but didn't read content fully.
-            // I'll assume GET /projects/:id is supported or I'll add it.
-            // Update: Spec says: GET /api/projects is List. PUT /api/projects/:id is Update.
-            // It doesn't explicitly list GET /api/projects/:id in Backend section... 
-            // Wait, API 5 is Tenant. API 13 List Projects.
-            // Backend Section Step 3.4 Project Module: 
-            // API 12 Create, 13 List, 14 Update, 15 Delete.
-            // MISSING GET /projects/:id in backend spec! 
-            // Frontend Step 4.3 REQUIRES it.
-            // I must likely implement it or use List filtering.
-            // I will use List filtering for now to be safe with existing backend.
             const res = await api.get(`/projects?limit=100`);
-            const found = res.data.data.projects.find(p => p.id === projectId);
-            if (found) {
-                setProject(found);
-                setProjName(found.name);
-                setProjDesc(found.description || "");
-                setProjStatus(found.status);
+            if (res.data.success) {
+                const found = res.data.data.projects.find(p => p.id === projectId);
+                if (found) {
+                    setProject(found);
+                    setProjName(found.name);
+                    setProjDesc(found.description || "");
+                    setProjStatus(found.status);
+                    return found;
+                }
             }
         } catch (e) {
-            console.error("Failed to fetch project info");
+            console.error("Failed to fetch project info", e);
+        }
+    };
+
+    const fetchTasks = async () => {
+        try {
+            const res = await api.get(`/projects/${projectId}/tasks?limit=100`);
+            if (res.data.success) {
+                setTasks(res.data.data.tasks || []);
+            }
+        } catch (err) {
+            console.error("Failed to fetch tasks", err);
+        }
+    };
+
+    const fetchUsers = async () => {
+        if (!user?.tenant_id) return;
+        try {
+            const res = await api.get(`/tenants/${user.tenant_id}/users`);
+            if (res.data.success) {
+                setUsers(res.data.data.users || []);
+            }
+        } catch (err) {
+            console.error("Failed to fetch users", err);
         }
     };
 
@@ -84,6 +103,7 @@ function ProjectDetails() {
     };
 
     useEffect(() => {
+        if (!user) return;
         (async () => {
             try {
                 setLoading(true);
@@ -97,7 +117,7 @@ function ProjectDetails() {
                 setLoading(false);
             }
         })();
-    }, [projectId]);
+    }, [projectId, user]);
 
     /* ===============================
        ADD TASK

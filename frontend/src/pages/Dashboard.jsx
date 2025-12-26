@@ -34,7 +34,7 @@ function Dashboard() {
           try {
             const tenantRes = await axios.get(`/tenants/${user.tenant_id}`);
             if (tenantRes.data.success) {
-              const s = tenantRes.data.data.stats;
+              const s = tenantRes.data.data.stats || {};
               const projectsRes = await axios.get("/projects?limit=5");
 
               console.log("Dashboard Stats:", s); // Debug stats
