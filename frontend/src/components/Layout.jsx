@@ -120,7 +120,7 @@ const Layout = ({ children }) => {
                         width: "24px",
                         height: "24px",
                         borderRadius: "50%",
-                        background: "var(--border-color)",
+                        background: "var(--primary-color)",
                         color: "#fff",
                         border: "none",
                         display: "flex",

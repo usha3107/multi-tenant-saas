@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import api from "../api/api";
 import { useAuth } from "../context/AuthContext";
 import {
@@ -16,6 +16,7 @@ import {
 
 function ProjectDetails() {
     const { projectId } = useParams();
+    const navigate = useNavigate();
     const { user } = useAuth();
 
     const [tasks, setTasks] = useState([]);
@@ -243,8 +244,8 @@ function ProjectDetails() {
                         <Edit2 size={16} />
                     </button>
                 </div>
-                <button className="btn-secondary btn-sm" onClick={() => window.history.back()}>
-                    <ArrowLeft size={16} style={{ marginRight: "5px" }} /> Back to Projects
+                <button className="btn-secondary btn-sm" onClick={() => navigate("/projects")}>
+                    <ArrowLeft size={16} style={{ marginRight: "5px" }} /> Back
                 </button>
             </div>
 

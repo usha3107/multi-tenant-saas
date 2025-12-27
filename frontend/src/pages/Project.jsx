@@ -78,7 +78,9 @@ function Projects() {
           <FolderPlus size={28} className="text-muted" color="var(--text-muted)" />
           <h2 style={{ fontSize: "1.2rem", color: "var(--text-muted)", margin: 0 }}>Projects</h2>
         </div>
-        <button className="btn-secondary btn-sm" onClick={() => window.history.back()}>&larr; Back</button>
+        <button className="btn-secondary btn-sm" onClick={() => navigate("/dashboard")}>
+          <ArrowRight size={16} style={{ transform: "rotate(180deg)", marginRight: "5px" }} /> Back
+        </button>
       </div>
 
       {error && <p className="error">{error}</p>}

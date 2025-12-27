@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api/api";
 import { useAuth } from "../context/AuthContext";
 import { UserPlus, Trash2, ArrowLeft } from "lucide-react";
 
 function Users() {
   const { user, loading, isTenantAdmin } = useAuth();
+  const navigate = useNavigate();
 
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
@@ -83,7 +85,7 @@ function Users() {
           <UserPlus size={28} className="text-muted" color="var(--text-muted)" />
           <h2 style={{ fontSize: "1.2rem", color: "var(--text-muted)", margin: 0 }}>Team Members</h2>
         </div>
-        <button className="btn-secondary btn-sm" onClick={() => window.history.back()}>
+        <button className="btn-secondary btn-sm" onClick={() => navigate("/dashboard")}>
           <ArrowLeft size={16} style={{ marginRight: "5px" }} /> Back
         </button>
       </div>
