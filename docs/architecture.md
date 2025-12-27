@@ -237,11 +237,10 @@ All APIs follow REST principles and return a consistent response format:
 
 ---
 
-## 7. Diagram Placeholders
+## 7. System Diagrams
 
-The following diagrams will be added under `docs/images/`:
+### System Architecture
+![System Architecture](images/system-architecture.png)
 
-- `system-architecture.png`
-- `database-erd.png`
-
-These diagrams visually represent the architecture and database relationships described above.
+### Database ERD
+![Database ERD](images/database-erd.png)
